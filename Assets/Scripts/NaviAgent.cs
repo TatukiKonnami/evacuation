@@ -22,10 +22,10 @@ public class NaviAgent : MonoBehaviour
     void Update()
     {
         // クリックで最初の位置にもどる。
-        if (Input.GetMouseButtonDown(0))
-        {
-            transform.position = start;
-        }
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    transform.position = start;
+        //}
 
 
     }
