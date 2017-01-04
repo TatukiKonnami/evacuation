@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ public class Tanten_List_Creation : MonoBehaviour
             while (roadData2.Peek() >= 0)
             {
                 //"roaddata.txt"を１行ずつ読み込む
-                string roadBuffer2 = roadData2.ReadLine();
+                string roadBuffer2 = roadData2.ReadLine().Trim();
 
                 //読み込んだ1行の文字を格納して改行
                 roadStr2 += roadBuffer2 + Environment.NewLine;
@@ -54,45 +55,65 @@ public class Tanten_List_Creation : MonoBehaviour
 
             foreach (string item in roadArray2)
             {
-                string item1_1 = item.Trim();
-                string[] roadArray3 = item1_1.Split(',');
+                //string item1_1 = item.Trim();
+                string[] roadArray3 = item.Split(',');
+
                 //デバッグ用
                 foreach (string item2 in roadArray3)
                 {
                     Debug.Log(item2);
                 }
             }
+            //for (int v = 1; v <= 5; v++)
 
+            //    {
+            //        string str_x_point = roadArray3[i];
+            //        string str_y_point = roadArray3[i + 1];
 
-            ////Tanten型のListに端点を格納する
-            ////countの値がarrayの-1になるまでループ
-            //while (i < this.roadArray3.Length - 1)
-            //{
-            //    string str_x_point = this.roadArray3[i];
-            //    string str_y_point = this.roadArray3[i + 1];
+            //        x_point = int.Parse(str_x_point);
+            //        y_point = int.Parse(str_y_point);
 
-            //    x_point = int.Parse(str_x_point);
-            //    y_point = int.Parse(str_y_point);
-
-            //    //ListにAddメソッドでTanten型の変数を順次格納していく
-            //    tantens.Add(new Tanten(x_point, y_point));
+            //        //ListにAddメソッドでTanten型の変数を順次格納していく
+            //        tantens.Add(new Tanten(x_point, y_point));
 
 
 
-            //    //2つずつ取り出しているのでcount+2
-            //    i = i + 2;
-
+            //    //2つずつ取り出しているのでcount + 2
+            //        v = v + 2;
             //}
 
-            //foreach (Tanten item2 in tantens)
-            //{
-            //    UnityEngine.Debug.Log(item2.x + "," + item2.y);
-            //}
         }
 
 
+        ////Tanten型のListに端点を格納する
+        ////countの値がarrayの-1になるまでループ
+        //while (i < this.roadArray3.Length - 1)
+        //{
+        //    string str_x_point = this.roadArray3[i];
+        //    string str_y_point = this.roadArray3[i + 1];
+
+        //    x_point = int.Parse(str_x_point);
+        //    y_point = int.Parse(str_y_point);
+
+        //    //ListにAddメソッドでTanten型の変数を順次格納していく
+        //    tantens.Add(new Tanten(x_point, y_point));
 
 
+
+        //    //2つずつ取り出しているのでcount+2
+        //    i = i + 2;
+
+        //}
+
+        //foreach (Tanten item2 in tantens)
+        //{
+        //    UnityEngine.Debug.Log(item2.x + "," + item2.y);
+        //}
     }
+
+
+
+
 }
+
 
