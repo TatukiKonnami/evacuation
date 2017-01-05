@@ -1,4 +1,6 @@
-﻿internal class Road
+﻿using System;
+
+internal class Road
 {
     public int x1;
     public int y1;
