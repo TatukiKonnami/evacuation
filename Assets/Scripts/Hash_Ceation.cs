@@ -194,7 +194,7 @@ public class Hash_Ceation : MonoBehaviour
                     {
                        // Debug.Log(roads[i].x1 + "," + roads[i].z1);
                     }
-                    Debug.Log(roadsArray);
+                   
                     it++;
                 }
                 i++;
