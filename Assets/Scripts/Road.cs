@@ -1,7 +1,9 @@
 ﻿using System;
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
-
-internal class Road
+public class Road
 {
     public int x1;
     public int z1;
@@ -15,5 +17,10 @@ internal class Road
         this.z1 = z1;
         this.x2 = x2;
         this.z2 = z2;
+    }
+
+    public static explicit operator Road(List<Tanten> v)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,4 +1,4 @@
-﻿internal class Tanten
+﻿public class Tanten
 {
     public int x;
     public int z;
