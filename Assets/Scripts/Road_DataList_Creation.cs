@@ -70,7 +70,7 @@ public class Road_DataList_Creation : MonoBehaviour
             //デバック用
             foreach (Road item in roads)
             {
-                Debug.Log(item.x1 + "," + item.y1 + "," + item.x2 + "," + item.y2);
+                Debug.Log(item.x1 + "," + item.z1 + "," + item.x2 + "," + item.z2);
             }
 
         }

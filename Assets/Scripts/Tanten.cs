@@ -1,11 +1,11 @@
 ﻿internal class Tanten
 {
     public int x;
-    public int y;
+    public int z;
 
-    public Tanten(int x, int y)
+    public Tanten(int x, int z)
     {
         this.x = x;
-        this.y = y;
+        this.z = z;
     }
 }
