@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour
 {
+    public GameObject prefab;
 
     // Use this for initialization
     void Start()
@@ -15,11 +16,9 @@ public class Main : MonoBehaviour
 
         //Tanten型のListを宣言
         List<Tanten> tantens = new List<Tanten>();
-
         List<Tanten> ikisakis = new List<Tanten>();
 
         int k = Int32.MaxValue;
-
 
         using (System.IO.StreamReader roadData = new System.IO.StreamReader("Road_DataList.txt", System.Text.Encoding.UTF8))
         using (System.IO.StreamReader tantenData = new System.IO.StreamReader("Tanten_List.txt", System.Text.Encoding.UTF8))
@@ -28,19 +27,32 @@ public class Main : MonoBehaviour
             tantens = CreationTantenList(tantenData);
         }
 
-        //現在地を取得してgenzaichiに格納（Unity）
-        Tanten genzaichi = new Tanten(-124, 364);
+        //現在地を取得してgenzaichiに格納（Unity)
+        //IntCastメソッド：transform.positionをint型にキャストする
+        Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
 
-        //xのマイナスを外すメソッド
+        //genzaichiのx座標を絶対値化する処理
+        genzaichi = MinusDelete(genzaichi);
 
         //Ikisakiメソッド：genzaichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(genzaichi, roads);
 
-        //ikisakis（リスト）に格納されている座標（端点）をUI表示して選択させる（Unity)
+        //ikisakis（リスト）に格納されている座標（端点）に選択肢UIを表示（Unity)
+        int i = 0;
+        while (i < ikisakis.Count)
+        {
+            Instantiate(prefab, new Vector3(-ikisakis[i].x, 1.5f, ikisakis[i].z), Quaternion.identity);
+            i++;
+        }
+
+        //LeapMotionで選択（Unity）
 
         //選択した端点をsentakumichiに格納（Unity）
-        Tanten sentakumichi = new Tanten(124, 359);
+        Tanten sentakumichi = new Tanten(-124, 359);
+
+        //sentakumichiのx座標を絶対値化する処理
+        sentakumichi = MinusDelete(sentakumichi);
 
         //Ikisakiメソッド：sentakumichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
@@ -53,26 +65,27 @@ public class Main : MonoBehaviour
         //未Debug
         while (k == 0)
         {
-            int i = 0;
-            while (i < ikisakis.Count)
+            int it = 0;
+            while (it < ikisakis.Count)
             {
 
-                if (genzaichi.x != ikisakis[i].x && genzaichi.z != ikisakis[i].z)
+                if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
                 {
-                    sentakumichi = ikisakis[i];
+                    sentakumichi = ikisakis[it];
 
                 }
 
-                i++;
+                it++;
             }
             ikisakis = Ikisaki(sentakumichi, roads);
             k = KousatenHanten(ikisakis);
         }
 
+        //sentakumichiのx座標にマイナスを付ける処理
+        sentakumichi = MinusAdd(sentakumichi);
 
-        //移動する処理(Unity)
+        //ナビゲーションシステムで移動する処理(Unity)
         //行き先はsentakumichiに格納されている
-
         Idou(sentakumichi);
 
 
@@ -80,13 +93,6 @@ public class Main : MonoBehaviour
     }
 
    
-
-
-
-
-
-
-
 
 
     // Update is called once per frame
@@ -237,22 +243,20 @@ public class Main : MonoBehaviour
 
     }
 
-    //未使用
     //Tanten型の値を絶対値化する
-    private Tanten MinusDelete(Tanten genzaichi)
+    private Tanten MinusDelete(Tanten a)
     {
-        int x = System.Math.Abs(genzaichi.x);
+        int x = System.Math.Abs(a.x);
 
-        int z = System.Math.Abs(genzaichi.z);
+        int z = System.Math.Abs(a.z);
 
         Tanten plus = new Tanten(x, z);
 
         return plus;
     }
 
-    //未使用
     //Tanten型のxの値をマイナス化する
-    private Tanten PlusAdd(Tanten a)
+    private Tanten MinusAdd(Tanten a)
     {
         int x = -a.x;
 
@@ -261,6 +265,17 @@ public class Main : MonoBehaviour
         Tanten minus = new Tanten(x, z);
 
         return minus; 
+    }
+
+    //float型をint型に変換
+    private Tanten IntCast(float a, float b)
+    {
+        int x = (int)a;
+        int z = (int)b;
+
+        Tanten ints = new Tanten(x, z);
+
+        return ints;
     }
 
     private void Idou(Tanten sentakumichi)
