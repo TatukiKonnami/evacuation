@@ -44,7 +44,6 @@ public class Main : MonoBehaviour
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(genzaichi, roads);
 
-
         //選択肢UIを表示
         //交差点から選択肢それぞれが距離：2の位置に表示
         int itr = 0;
@@ -67,8 +66,9 @@ public class Main : MonoBehaviour
             itr++;
         }
 
-
         //LeapMotionで選択（Unity）
+        
+
 
         //選択した端点をsentakumichiに格納（Unity）
         Tanten sentakumichi = new Tanten(-124, 359);
@@ -329,7 +329,7 @@ public class Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 2;
+        double distance = 0.6;
         double x1t = Math.Cos(kakudo) * distance ;
         double z1t = Math.Sin(kakudo) * distance ;
 
@@ -349,24 +349,5 @@ public class Main : MonoBehaviour
     {
 
     }
-
-
-    // double radian1 = Math.atan2(y_point2 - y_point1, x_point2 - x_point1);
-    // // deg_1 = radian1 * 180 / Math.PI;
-    // deg_a = Math.toDegrees(radian1);
-    //if (deg_a< 0) {
-    //	deg_a += 360; // マイナスのものは360を加算
-    //}
-
-
-    ////角度から線を召喚
-    ////その線が重なるか判定
-    ////重なったらそれを選択
-    ////結果を格納
-    //degree_0 = start_deg;
-    //	distance_0 = 1000;
-    //	double radian_0 = degree_0 * Math.PI / 180;
-    //x_0 = Math.cos(radian_0) * distance_0;
-    //	y_0 = Math.sin(radian_0) * distance_0;
 
 }
