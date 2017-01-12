@@ -11,12 +11,17 @@ public class Main : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //Road型のListを宣言
+        //Road型(int x1, int z1, int x2, int z2)のListを宣言
         List<Road> roads = new List<Road>();
 
-        //Tanten型のListを宣言
+        //Tanten型(int x, int z)のListを宣言
         List<Tanten> tantens = new List<Tanten>();
         List<Tanten> ikisakis = new List<Tanten>();
+
+        //UiPoint型(float x, float z)のListを宣言
+        List<UiPoint> uipoints = new List<UiPoint>();
+
+        Tanten ikisakiT = new Tanten(0, 0);
 
         int k = Int32.MaxValue;
 
@@ -27,6 +32,7 @@ public class Main : MonoBehaviour
             tantens = CreationTantenList(tantenData);
         }
 
+        //スタート地点は必ず交差点にすること
         //現在地を取得してgenzaichiに格納（Unity)
         //IntCastメソッド：transform.positionをint型にキャストする
         Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
@@ -38,13 +44,29 @@ public class Main : MonoBehaviour
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(genzaichi, roads);
 
-        //ikisakis（リスト）に格納されている座標（端点）に選択肢UIを表示（Unity)
-        int i = 0;
-        while (i < ikisakis.Count)
+
+        //選択肢UIを表示
+        //交差点から選択肢それぞれが距離：2の位置に表示
+        int itr = 0;
+        while (itr < ikisakis.Count)
         {
-            Instantiate(prefab, new Vector3(-ikisakis[i].x, 1.5f, ikisakis[i].z), Quaternion.identity);
-            i++;
+            //ikisakis（リスト）をikisakiTに格納
+            //使うのはKakudoメソッド内のみ
+            //ループするたびに上書きされる
+            ikisakiT = ikisakis[itr];
+
+            //Kakudoメソッド：座標間の角度を出す
+            double kakudo = Kakudo(genzaichi, ikisakiT);
+
+            //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
+            UiPoint ui = UIZahyou(kakudo, genzaichi);
+
+            //uipoints（リスト）に格納されている座標（端点）に選択肢UIを表示（Unity)
+            Instantiate(prefab, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
+
+            itr++;
         }
+
 
         //LeapMotionで選択（Unity）
 
@@ -92,7 +114,13 @@ public class Main : MonoBehaviour
 
     }
 
-   
+
+
+
+
+
+
+
 
 
     // Update is called once per frame
@@ -264,7 +292,7 @@ public class Main : MonoBehaviour
 
         Tanten minus = new Tanten(x, z);
 
-        return minus; 
+        return minus;
     }
 
     //float型をint型に変換
@@ -278,9 +306,67 @@ public class Main : MonoBehaviour
         return ints;
     }
 
+    //座標間の角度を返す
+    private double Kakudo(Tanten genzaichi, Tanten ikisakiT)
+    {
+        double kakudo = 0.0;
+
+        double x1 = genzaichi.x;
+        double z1 = genzaichi.z;
+        double x2 = ikisakiT.x;
+        double z2 = ikisakiT.z;
+
+        kakudo = Math.Atan2(z2 - z1, x2 - x1);
+
+
+        return kakudo;
+    }
+    //座標から任意の角度の直線状の座標を返す
+    private UiPoint UIZahyou(double kakudo, Tanten genzaichi)
+    {
+        UiPoint ui;
+
+        double x1 = genzaichi.x;
+        double z1 = genzaichi.z;
+
+        double distance = 2;
+        double x1t = Math.Cos(kakudo) * distance ;
+        double z1t = Math.Sin(kakudo) * distance ;
+
+        float x1f = (float)x1t + (float)x1;
+        float z1f = (float)z1t + (float)z1;
+
+        ui = new UiPoint(x1f, z1f);
+
+
+
+        return ui;
+    }
+
+
+
     private void Idou(Tanten sentakumichi)
     {
-        
+
     }
+
+
+    // double radian1 = Math.atan2(y_point2 - y_point1, x_point2 - x_point1);
+    // // deg_1 = radian1 * 180 / Math.PI;
+    // deg_a = Math.toDegrees(radian1);
+    //if (deg_a< 0) {
+    //	deg_a += 360; // マイナスのものは360を加算
+    //}
+
+
+    ////角度から線を召喚
+    ////その線が重なるか判定
+    ////重なったらそれを選択
+    ////結果を格納
+    //degree_0 = start_deg;
+    //	distance_0 = 1000;
+    //	double radian_0 = degree_0 * Math.PI / 180;
+    //x_0 = Math.cos(radian_0) * distance_0;
+    //	y_0 = Math.sin(radian_0) * distance_0;
 
 }
