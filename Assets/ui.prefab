@@ -23,7 +23,7 @@ GameObject:
   - 65: {fileID: 65000012804652220}
   - 23: {fileID: 23000014277009504}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: ui
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

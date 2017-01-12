@@ -6,7 +6,8 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour
 {
-    public GameObject prefab;
+    public GameObject uis;
+
 
     // Use this for initialization
     void Start()
@@ -60,8 +61,8 @@ public class Main : MonoBehaviour
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
 
-            //uipoints（リスト）に格納されている座標（端点）に選択肢UIを表示（Unity)
-            Instantiate(prefab, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
+            //uiに格納されている座標（端点）に選択肢UIを表示（Unity)
+            Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
@@ -71,7 +72,8 @@ public class Main : MonoBehaviour
 
 
         //選択した端点をsentakumichiに格納（Unity）
-        Tanten sentakumichi = new Tanten(-124, 359);
+        //Tanten sentakumichi = new Tanten(-124, 359);
+        Tanten sentakumichi = new Tanten(-87, 261);
 
         //sentakumichiのx座標を絶対値化する処理
         sentakumichi = MinusDelete(sentakumichi);
@@ -103,30 +105,25 @@ public class Main : MonoBehaviour
             k = KousatenHanten(ikisakis);
         }
 
-        //sentakumichiのx座標にマイナスを付ける処理
+        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
 
         //ナビゲーションシステムで移動する処理(Unity)
-        //行き先はsentakumichiに格納されている
-        Idou(sentakumichi);
-
+        // NavMeshAgentを取得して
+        var agent = GetComponent<NavMeshAgent>();
+        //sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
+        Vector3 goal;
+        goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
+        agent.destination = goal;
 
 
     }
 
 
-
-
-
-
-
-
-
-
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     // 以下Method　
@@ -341,13 +338,6 @@ public class Main : MonoBehaviour
 
 
         return ui;
-    }
-
-
-
-    private void Idou(Tanten sentakumichi)
-    {
-
     }
 
 }
