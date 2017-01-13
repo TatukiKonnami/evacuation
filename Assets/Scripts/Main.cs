@@ -8,7 +8,6 @@ public class Main : MonoBehaviour
 {
     public GameObject uis;
 
-
     // Use this for initialization
     void Start()
     {
@@ -22,13 +21,20 @@ public class Main : MonoBehaviour
         //UiPoint型(float x, float z)のListを宣言
         List<UiPoint> uipoints = new List<UiPoint>();
 
+        //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
+        List<Sentaku> sentakus = new List<Sentaku>();
+
+        //Tanten型(int x, int z)の変数を宣言
         Tanten ikisakiT = new Tanten(0, 0);
 
+        //int型の変数を宣言
         int k = Int32.MaxValue;
 
+        //"Road_DataList.txt"と"Tanten_List.txt"を読み込む
+        //"Road_DataList.txtからroadsリスト、Tanten_List.txtからtantensリストを作成する
         using (System.IO.StreamReader roadData = new System.IO.StreamReader("Road_DataList.txt", System.Text.Encoding.UTF8))
         using (System.IO.StreamReader tantenData = new System.IO.StreamReader("Tanten_List.txt", System.Text.Encoding.UTF8))
-        {
+        {        
             roads = CreationRoadList(roadData);
             tantens = CreationTantenList(tantenData);
         }
@@ -64,6 +70,9 @@ public class Main : MonoBehaviour
             //uiに格納されている座標（端点）に選択肢UIを表示（Unity)
             Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
+            //sentakusはLeapMotionで選択後、sentakumichiに(-ikisakiT.x,ikisakiT.z)を渡すためのリスト
+            sentakus.Add(new Sentaku(-ui.x,ui.z,-ikisakiT.x,ikisakiT.z));
+
             itr++;
         }
 
@@ -71,9 +80,10 @@ public class Main : MonoBehaviour
         
 
 
+
         //選択した端点をsentakumichiに格納（Unity）
-        //Tanten sentakumichi = new Tanten(-124, 359);
-        Tanten sentakumichi = new Tanten(-87, 261);
+        Tanten sentakumichi = new Tanten(-124, 359);
+        //Tanten sentakumichi = new Tanten(-87, 261);
 
         //sentakumichiのx座標を絶対値化する処理
         sentakumichi = MinusDelete(sentakumichi);
@@ -112,9 +122,9 @@ public class Main : MonoBehaviour
         // NavMeshAgentを取得して
         var agent = GetComponent<NavMeshAgent>();
         //sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
-        Vector3 goal;
-        goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
-        agent.destination = goal;
+        //Vector3 goal;
+        //goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
+        //agent.destination = goal;
 
 
     }
@@ -326,7 +336,7 @@ public class Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 0.6;
+        double distance = 2;
         double x1t = Math.Cos(kakudo) * distance ;
         double z1t = Math.Sin(kakudo) * distance ;
 
