@@ -8,8 +8,8 @@ public class ChildColliderEnter : MonoBehaviour
 
     void Start()
     {
-        //親オブジェクトを取得
-        parent = gameObject.transform.parent.gameObject;
+        //親(Main)オブジェクトを取得
+        parent = gameObject.transform.parent.parent.parent.parent.parent.gameObject;
     }
 
     //OnCollisionEnterは物体と物体が衝突したときに呼び出される関数

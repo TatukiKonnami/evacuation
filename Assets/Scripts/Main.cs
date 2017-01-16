@@ -15,7 +15,6 @@ public class Main : MonoBehaviour
         List<Road> roads = new List<Road>();
 
         //Tanten型(int x, int z)のListを宣言
-        List<Tanten> tantens = new List<Tanten>();
         List<Tanten> ikisakis = new List<Tanten>();
 
         //UiPoint型(float x, float z)のListを宣言
@@ -33,10 +32,8 @@ public class Main : MonoBehaviour
         //"Road_DataList.txt"と"Tanten_List.txt"を読み込む
         //"Road_DataList.txtからroadsリスト、Tanten_List.txtからtantensリストを作成する
         using (System.IO.StreamReader roadData = new System.IO.StreamReader("Road_DataList.txt", System.Text.Encoding.UTF8))
-        using (System.IO.StreamReader tantenData = new System.IO.StreamReader("Tanten_List.txt", System.Text.Encoding.UTF8))
-        {        
+        {
             roads = CreationRoadList(roadData);
-            tantens = CreationTantenList(tantenData);
         }
 
         //スタート地点は必ず交差点にすること
@@ -54,6 +51,7 @@ public class Main : MonoBehaviour
         //選択肢UIを表示
         //交差点から選択肢それぞれが距離：2の位置に表示
         int itr = 0;
+        List<UiPoint> uiv = new List<UiPoint>();
         while (itr < ikisakis.Count)
         {
             //ikisakis（リスト）をikisakiTに格納
@@ -67,19 +65,23 @@ public class Main : MonoBehaviour
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
 
+            uiv.Add(new UiPoint(ui.x,ui.z));
+
             //uiに格納されている座標（端点）に選択肢UIを表示（Unity)
             Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
-
-            //sentakusはLeapMotionで選択後、sentakumichiに(-ikisakiT.x,ikisakiT.z)を渡すためのリスト
-            sentakus.Add(new Sentaku(-ui.x,ui.z,-ikisakiT.x,ikisakiT.z));
 
             itr++;
         }
 
-        //LeapMotionで選択（Unity）
         
 
+        //LeapMotionで選択（Unity）;
 
+        ////手の座標取得
+        //Handposition();
+
+        ////判定処理
+        //Leapdecision();
 
         //選択した端点をsentakumichiに格納（Unity）
         Tanten sentakumichi = new Tanten(-124, 359);
@@ -129,11 +131,15 @@ public class Main : MonoBehaviour
 
     }
 
+    
+
+
+
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     // 以下Method　
@@ -328,6 +334,7 @@ public class Main : MonoBehaviour
 
         return kakudo;
     }
+
     //座標から任意の角度の直線状の座標を返す
     private UiPoint UIZahyou(double kakudo, Tanten genzaichi)
     {
@@ -336,9 +343,9 @@ public class Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 2;
-        double x1t = Math.Cos(kakudo) * distance ;
-        double z1t = Math.Sin(kakudo) * distance ;
+        double distance = 1;
+        double x1t = Math.Cos(kakudo) * distance;
+        double z1t = Math.Sin(kakudo) * distance;
 
         float x1f = (float)x1t + (float)x1;
         float z1f = (float)z1t + (float)z1;
@@ -349,5 +356,6 @@ public class Main : MonoBehaviour
 
         return ui;
     }
+
 
 }
