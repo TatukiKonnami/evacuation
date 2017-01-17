@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class Main : MonoBehaviour
 {
     public GameObject uis;
+    static Vector3 hand_position;
 
     // Use this for initialization
     void Start()
@@ -51,7 +52,8 @@ public class Main : MonoBehaviour
         //選択肢UIを表示
         //交差点から選択肢それぞれが距離：2の位置に表示
         int itr = 0;
-        List<UiPoint> uiv = new List<UiPoint>();
+        //UI判定用のリストを作成
+        List<Vector3> uiv = new List<Vector3>();
         while (itr < ikisakis.Count)
         {
             //ikisakis（リスト）をikisakiTに格納
@@ -65,23 +67,25 @@ public class Main : MonoBehaviour
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
 
-            uiv.Add(new UiPoint(ui.x,ui.z));
+            //UI判定用のリストにUIの範囲を追加
+            uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
             //uiに格納されている座標（端点）に選択肢UIを表示（Unity)
+            //これ自体に判定はない
             Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
 
-        
+
 
         //LeapMotionで選択（Unity）;
+        //手の座標取得
 
-        ////手の座標取得
-        //Handposition();
 
         ////判定処理
         //Leapdecision();
+
 
         //選択した端点をsentakumichiに格納（Unity）
         Tanten sentakumichi = new Tanten(-124, 359);
@@ -131,7 +135,8 @@ public class Main : MonoBehaviour
 
     }
 
-    
+
+
 
 
 
@@ -139,7 +144,7 @@ public class Main : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        Debug.Log(hand_position.x + "," + hand_position.y + "," + hand_position.z);
     }
 
     // 以下Method　
@@ -343,7 +348,7 @@ public class Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 1;
+        double distance = 0.3;
         double x1t = Math.Cos(kakudo) * distance;
         double z1t = Math.Sin(kakudo) * distance;
 
@@ -357,5 +362,13 @@ public class Main : MonoBehaviour
         return ui;
     }
 
+    private void Handposition(Vector3 hand_positions)
+    {
+        hand_position = hand_positions;    
+    }
 
+    private void Hantei()
+    {
+        throw new NotImplementedException();
+    }
 }

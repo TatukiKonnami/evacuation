@@ -386,9 +386,10 @@ GameObject:
   - 4: {fileID: 140501214}
   - 65: {fileID: 140501217}
   - 54: {fileID: 140501216}
+  - 114: {fileID: 140501215}
   m_Layer: 0
-  m_Name: palm
-  m_TagString: Untagged
+  m_Name: palm_R
+  m_TagString: Hand
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -407,6 +408,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1980782885}
   m_RootOrder: 5
+--- !u!114 &140501215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 140501213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94cebab3cbf7cc4468735f8c53a822a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &140501216
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2888,7 +2900,7 @@ GameObject:
   - 65: {fileID: 1589541473}
   - 54: {fileID: 1589541472}
   m_Layer: 0
-  m_Name: palm
+  m_Name: palm_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3671,6 +3683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uis: {fileID: 1000010756150372, guid: e77e5fd4a1ec3fe4fb0ed580a4797e28, type: 2}
+  palm: {fileID: 0}
 --- !u!114 &1982886569
 MonoBehaviour:
   m_ObjectHideFlags: 0
