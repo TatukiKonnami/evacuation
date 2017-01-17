@@ -8,27 +8,32 @@ public class Main : MonoBehaviour
 {
     public GameObject uis;
     static Vector3 hand_position;
+    public Vector3 uivtest = new Vector3(-124.2995f, 1.5f, 364.0176f);
+
+    //Road型(int x1, int z1, int x2, int z2)のListを宣言
+    List<Road> roads = new List<Road>();
+
+    //Tanten型(int x, int z)のListを宣言
+    List<Tanten> ikisakis = new List<Tanten>();
+
+    //UiPoint型(float x, float z)のListを宣言
+    List<UiPoint> uipoints = new List<UiPoint>();
+
+    //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
+    List<Sentaku> sentakus = new List<Sentaku>();
+
+    //Tanten型(int x, int z)の変数を宣言
+    Tanten ikisakiT = new Tanten(0, 0);
+
+    Tanten sentakumichi = new Tanten(0, 0);
+
+    //int型の変数を宣言
+    int k = Int32.MaxValue;
 
     // Use this for initialization
     void Start()
     {
-        //Road型(int x1, int z1, int x2, int z2)のListを宣言
-        List<Road> roads = new List<Road>();
 
-        //Tanten型(int x, int z)のListを宣言
-        List<Tanten> ikisakis = new List<Tanten>();
-
-        //UiPoint型(float x, float z)のListを宣言
-        List<UiPoint> uipoints = new List<UiPoint>();
-
-        //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
-        List<Sentaku> sentakus = new List<Sentaku>();
-
-        //Tanten型(int x, int z)の変数を宣言
-        Tanten ikisakiT = new Tanten(0, 0);
-
-        //int型の変数を宣言
-        int k = Int32.MaxValue;
 
         //"Road_DataList.txt"と"Tanten_List.txt"を読み込む
         //"Road_DataList.txtからroadsリスト、Tanten_List.txtからtantensリストを作成する
@@ -67,6 +72,10 @@ public class Main : MonoBehaviour
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
 
+
+            //UI座標を検索するためのリストに追加
+            sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
+
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
@@ -79,12 +88,10 @@ public class Main : MonoBehaviour
 
 
 
-        //LeapMotionで選択（Unity）;
-        //手の座標取得
 
 
-        ////判定処理
-        //Leapdecision();
+
+
 
 
         //選択した端点をsentakumichiに格納（Unity）
@@ -136,16 +143,82 @@ public class Main : MonoBehaviour
     }
 
 
-
-
-
-
-
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(hand_position.x + "," + hand_position.y + "," + hand_position.z);
+
+        //LeapMotionで選択（Unity）;
+        //手の座標取得
+        Vector3 fingerposition;
+        fingerposition = hand_position;
+        //Debug.Log(fingerposition.x + "," + fingerposition.y + "," + fingerposition.z);
+
+
+        //判定処理
+        //UI座標(UiPoint)を返す
+        bool uipointr = CollisionDetection(fingerposition, uivtest);
+        if (uipointr == true)
+        {
+            //sentakusリストからUI座標を検索
+            ///選択した端点を返す
+            sentakumichi = SelectionSearch(uivtest, sentakus);
+            Debug.Log(uipointr);
+        }
+
     }
+
+
+
+    private bool CollisionDetection(Vector3 fingerposition, Vector3 uivtest)
+    {
+        UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
+        UiPoint vv = new UiPoint(uivtest.x, uivtest.z);
+        float p = Kyori(ff, vv);
+        float r = 0.4F;
+        Debug.Log(p);
+        if (r <= p)
+        {
+            return true;
+        }
+        else
+            return false;
+
+    }
+
+    private float Kyori(UiPoint ff, UiPoint vv)
+    {
+        double kyori;
+        float x1x2 = ff.x - vv.x;
+        float z1z2 = ff.z - vv.z;
+
+        decimal x1x2de = (decimal)MinusDeletef(x1x2);
+        decimal z1z2de = (decimal)MinusDeletef(z1z2);
+
+        double x1x2do = decimal.ToDouble(x1x2de);
+        double z1z2do = decimal.ToDouble(z1z2de);
+
+
+
+        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
+        return (float)kyori;
+    }
+
+    private Tanten SelectionSearch(Vector3 uivtest, List<Sentaku> sentakus)
+    {
+        Tanten selection = new Tanten(0, 0);
+        int i = 0;
+        while (i < sentakus.Count)
+        {
+            if (uivtest.x == sentakus[i].x1 && uivtest.z == sentakus[i].z1)
+            {
+                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
+            }
+            i++;
+        }
+        return selection;
+    }
+
+
 
     // 以下Method　
 
@@ -301,6 +374,17 @@ public class Main : MonoBehaviour
         return plus;
     }
 
+    //float型の値を絶対値化する
+    private float MinusDeletef(float a)
+    {
+        float x = System.Math.Abs(a);
+
+
+
+
+        return x;
+    }
+
     //Tanten型のxの値をマイナス化する
     private Tanten MinusAdd(Tanten a)
     {
@@ -364,11 +448,11 @@ public class Main : MonoBehaviour
 
     private void Handposition(Vector3 hand_positions)
     {
-        hand_position = hand_positions;    
+        hand_position = hand_positions;
     }
 
-    private void Hantei()
+    private void CollisionDetection()
     {
-        throw new NotImplementedException();
+
     }
 }

@@ -3627,6 +3627,7 @@ GameObject:
   - 195: {fileID: 1982886567}
   - 54: {fileID: 1982886566}
   - 114: {fileID: 1982886568}
+  - 114: {fileID: 1982886571}
   m_Layer: 0
   m_Name: OSVR_Leap_Player3
   m_TagString: Player
@@ -3683,7 +3684,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uis: {fileID: 1000010756150372, guid: e77e5fd4a1ec3fe4fb0ed580a4797e28, type: 2}
-  palm: {fileID: 0}
+  uivtest: {x: -124.2995, y: 1.5, z: 364.0176}
 --- !u!114 &1982886569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3712,6 +3713,18 @@ Transform:
   - {fileID: 2012582059}
   m_Father: {fileID: 0}
   m_RootOrder: 6
+--- !u!114 &1982886571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1982886565}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05ec43609bc60634ba57065fea594cc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uis: {fileID: 1000010756150372, guid: e77e5fd4a1ec3fe4fb0ed580a4797e28, type: 2}
 --- !u!1 &2001133087
 GameObject:
   m_ObjectHideFlags: 0
