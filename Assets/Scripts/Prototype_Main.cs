@@ -1,23 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 using System.IO;
 using System.Collections.Generic;
 
 public class Prototype_Main : MonoBehaviour
 {
-
     public GameObject uis;
+
     static Vector3 hand_position;
 
     //Road型(int x1, int z1, int x2, int z2)のListを宣言
-    public List<Road> roads = new List<Road>();
+    List<Road> roads = new List<Road>();
 
     //Tanten型(int x, int z)のListを宣言
     List<Tanten> ikisakis = new List<Tanten>();
 
-    //UiPoint型(float x, float z)のListを宣言
-    List<UiPoint> uipoints = new List<UiPoint>();
+    ////UiPoint型(float x, float z)のListを宣言
+    //List<UiPoint> uipoints = new List<UiPoint>();
 
     //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
     List<Sentaku> sentakus = new List<Sentaku>();
@@ -28,8 +27,16 @@ public class Prototype_Main : MonoBehaviour
     //Tanten型(int x, int z)の変数を宣言
     Tanten ikisakiT = new Tanten(0, 0);
 
-    //int型の変数を宣言
+    Tanten sentakumichi = new Tanten(0, 0);
+
+    Vector3 uin;
+
     int k = Int32.MaxValue;
+
+    //Vevtor型にして外から指定できるようにしたい
+    public Tanten genzaichi;
+
+    public UiPoint ui;
 
     void Awake()
     {
@@ -41,21 +48,11 @@ public class Prototype_Main : MonoBehaviour
         }
     }
 
+
     // Use this for initialization
     void Start()
     {
-
-    }
-
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        //スタート地点は必ず交差点にすること
-        //現在地を取得してgenzaichiに格納（Unity)
-        //IntCastメソッド：transform.positionをint型にキャストする
-        Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
+        genzaichi = new Tanten(-124, 364);
 
         //genzaichiのx座標を絶対値化する処理
         genzaichi = MinusDelete(genzaichi);
@@ -71,8 +68,6 @@ public class Prototype_Main : MonoBehaviour
         while (itr < ikisakis.Count)
         {
             //ikisakis（リスト）をikisakiTに格納
-            //使うのはKakudoメソッド内のみ
-            //ループするたびに上書きされる
             ikisakiT = ikisakis[itr];
 
             //Kakudoメソッド：座標間の角度を出す
@@ -84,33 +79,91 @@ public class Prototype_Main : MonoBehaviour
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
 
+
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
-            //uiに格納されている座標（端点）に選択肢UIを表示（Unity)
-            //これ自体に判定はない
+            //uiに格納されている座標（端点）に選択肢UIを表示
             Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
 
-        //LeapMotionで選択（Unity）;
+
+
+
+    }
+    //HandpositionスクリプトからSendMessage
+    //そのスクリプトが格納されているオブジェクトの座標を取得
+    private void Handposition(Vector3 hand_positions)
+    {
+        hand_position = hand_positions;
+    }
+
+    private bool CollisionDetection(Vector3 fingerposition, List<Vector3> uiv)
+    {
+        int i = 0;
+        float p = 0;
+        float r = 0;
+
+        while (i < uiv.Count)
+        {
+            //初期値が0問題
+            UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
+            //リストの一つしか読めてない問題
+            UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
+            p = Kyori(ff, vv);
+            Debug.Log(p);
+            r = 0.5f;
+            if (r <= p)
+            {
+                uin = new Vector3(uiv[i].x, uiv[i].y, uiv[i].z);
+                break;
+            }
+            i++;
+        }
+        return true;
+
+    }
+
+    //一つの方向にしか行かない問題
+    private Tanten SelectionSearch(Vector3 uin, List<Sentaku> sentakus)
+    {
+        Tanten selection = new Tanten(0, 0);
+        int i = 0;
+        while (i < sentakus.Count)
+        {
+            if (uin.x == sentakus[i].x1 && uin.z == sentakus[i].z1)
+            {
+                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
+            }
+            i++;
+        }
+        return selection;
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        ////現在地を取得してgenzaichiに格納（Unity)
+        ////IntCastメソッド：transform.positionをint型にキャストする
+        //Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
+
+        //LeapMotionで選択
         //手の座標取得
         Vector3 fingerposition;
         fingerposition = hand_position;
 
         //判定処理
-        //UI座標を返す
-        //CollisionDetection(fingerposition, uiv);
-
-        //sentakusリストからUI座標を検索
-        ///選択した端点を返す
-        //SelectionSearch(,);
-
-
-        //選択した端点をsentakumichiに格納（Unity）
-        Tanten sentakumichi = new Tanten(-124, 359);
-        //Tanten sentakumichi = new Tanten(-87, 261);
+        //UI座標(UiPoint)を返す
+        bool uipointr = CollisionDetection(fingerposition, uiv);
+        if (uipointr == true)
+        {
+            //sentakusリストからUI座標を検索して選択した端点を返す
+            sentakumichi = SelectionSearch(uin, sentakus);
+        }
 
         //sentakumichiのx座標を絶対値化する処理
         sentakumichi = MinusDelete(sentakumichi);
@@ -145,10 +198,10 @@ public class Prototype_Main : MonoBehaviour
         //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
 
-        //ナビゲーションシステムで移動する処理(Unity)
-        // NavMeshAgentを取得して
-        var agent = GetComponent<NavMeshAgent>();
-        //sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
+        ////ナビゲーションシステムで移動する処理(Unity)
+        //// NavMeshAgentを取得して
+        //var agent = GetComponent<NavMeshAgent>();
+        ////sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
         //Vector3 goal;
         //goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
         //agent.destination = goal;
@@ -158,8 +211,6 @@ public class Prototype_Main : MonoBehaviour
 
 
 
-
-    //
     // 以下Method　
 
     //textデータをRoad型リストにする
@@ -314,6 +365,17 @@ public class Prototype_Main : MonoBehaviour
         return plus;
     }
 
+    //float型の値を絶対値化する
+    private float MinusDeletef(float a)
+    {
+        float x = System.Math.Abs(a);
+
+
+
+
+        return x;
+    }
+
     //Tanten型のxの値をマイナス化する
     private Tanten MinusAdd(Tanten a)
     {
@@ -375,11 +437,23 @@ public class Prototype_Main : MonoBehaviour
         return ui;
     }
 
-    //HandpositionスクリプトからSendMessage
-    //そのスクリプトが格納されているオブジェクトの座標を取得
-    private void Handposition(Vector3 hand_positions)
+    private float Kyori(UiPoint ff, UiPoint vv)
     {
-        hand_position = hand_positions;
+        double kyori;
+        float x1x2 = ff.x - vv.x;
+        float z1z2 = ff.z - vv.z;
+
+        decimal x1x2de = (decimal)MinusDeletef(x1x2);
+        decimal z1z2de = (decimal)MinusDeletef(z1z2);
+
+        double x1x2do = decimal.ToDouble(x1x2de);
+        double z1z2do = decimal.ToDouble(z1z2de);
+
+
+
+        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
+        return (float)kyori;
     }
+
 
 }

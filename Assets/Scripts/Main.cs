@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -71,7 +70,6 @@ public class Main : MonoBehaviour
 
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
-
 
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
@@ -169,54 +167,7 @@ public class Main : MonoBehaviour
 
 
 
-    private bool CollisionDetection(Vector3 fingerposition, Vector3 uivtest)
-    {
-        UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
-        UiPoint vv = new UiPoint(uivtest.x, uivtest.z);
-        float p = Kyori(ff, vv);
-        float r = 0.4F;
-        Debug.Log(p);
-        if (r <= p)
-        {
-            return true;
-        }
-        else
-            return false;
-
-    }
-
-    private float Kyori(UiPoint ff, UiPoint vv)
-    {
-        double kyori;
-        float x1x2 = ff.x - vv.x;
-        float z1z2 = ff.z - vv.z;
-
-        decimal x1x2de = (decimal)MinusDeletef(x1x2);
-        decimal z1z2de = (decimal)MinusDeletef(z1z2);
-
-        double x1x2do = decimal.ToDouble(x1x2de);
-        double z1z2do = decimal.ToDouble(z1z2de);
-
-
-
-        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
-        return (float)kyori;
-    }
-
-    private Tanten SelectionSearch(Vector3 uivtest, List<Sentaku> sentakus)
-    {
-        Tanten selection = new Tanten(0, 0);
-        int i = 0;
-        while (i < sentakus.Count)
-        {
-            if (uivtest.x == sentakus[i].x1 && uivtest.z == sentakus[i].z1)
-            {
-                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
-            }
-            i++;
-        }
-        return selection;
-    }
+   
 
 
 
@@ -446,13 +397,59 @@ public class Main : MonoBehaviour
         return ui;
     }
 
+    //HandpositionスクリプトからSendMessage
+    //そのスクリプトが格納されているオブジェクトの座標を取得
     private void Handposition(Vector3 hand_positions)
     {
         hand_position = hand_positions;
     }
 
-    private void CollisionDetection()
+    private bool CollisionDetection(Vector3 fingerposition, Vector3 uivtest)
     {
+        UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
+        UiPoint vv = new UiPoint(uivtest.x, uivtest.z);
+        float p = Kyori(ff, vv);
+        float r = 0.4F;
+        Debug.Log(p);
+        if (r <= p)
+        {
+            return true;
+        }
+        else
+            return false;
 
+    }
+
+    private float Kyori(UiPoint ff, UiPoint vv)
+    {
+        double kyori;
+        float x1x2 = ff.x - vv.x;
+        float z1z2 = ff.z - vv.z;
+
+        decimal x1x2de = (decimal)MinusDeletef(x1x2);
+        decimal z1z2de = (decimal)MinusDeletef(z1z2);
+
+        double x1x2do = decimal.ToDouble(x1x2de);
+        double z1z2do = decimal.ToDouble(z1z2de);
+
+
+
+        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
+        return (float)kyori;
+    }
+
+    private Tanten SelectionSearch(Vector3 uivtest, List<Sentaku> sentakus)
+    {
+        Tanten selection = new Tanten(0, 0);
+        int i = 0;
+        while (i < sentakus.Count)
+        {
+            if (uivtest.x == sentakus[i].x1 && uivtest.z == sentakus[i].z1)
+            {
+                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
+            }
+            i++;
+        }
+        return selection;
     }
 }
