@@ -52,7 +52,7 @@ public class Prototype_Main : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        genzaichi = new Tanten(-124, 364);
+        genzaichi = new Tanten(-293, 460);
 
         //genzaichiのx座標を絶対値化する処理
         genzaichi = MinusDelete(genzaichi);
@@ -92,53 +92,12 @@ public class Prototype_Main : MonoBehaviour
     }
     
 
-    private bool CollisionDetection(Vector3 fingerposition, List<Vector3> uiv)
-    {
-        int i = 0;
-        while (i < uiv.Count)
-        {
-            //初期値が0問題
-            UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
-            //リストの一つしか読めてない問題
-            UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
-            float p = Kyori(ff, vv);
-            Debug.Log(p);
-            float r = 0.6f;
-            if (r >= p)
-            {
-                uin = new Vector3(uiv[i].x, uiv[i].y, uiv[i].z);
-                return true;
-            }
-            i++;
-        }
-        return false;
-
-    }
-
-    //一つの方向にしか行かない問題
-    private Tanten SelectionSearch(Vector3 uin, List<Sentaku> sentakus)
-    {
-        Tanten selection = new Tanten(0, 0);
-        int i = 0;
-        while (i < sentakus.Count)
-        {
-            if (uin.x == sentakus[i].x1 && uin.z == sentakus[i].z1)
-            {
-                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
-            }
-            i++;
-        }
-        return selection;
-    }
+    
 
 
     // Update is called once per frame
     void Update()
     {
-        ////現在地を取得してgenzaichiに格納（Unity)
-        ////IntCastメソッド：transform.positionをint型にキャストする
-        //Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
-
         //LeapMotionで選択
         //手の座標取得
         Vector3 fingerposition;
@@ -149,51 +108,94 @@ public class Prototype_Main : MonoBehaviour
         bool uipointr = CollisionDetection(fingerposition, uiv);
         if (uipointr == true)
         {
-            
             //sentakusリストからUI座標を検索して選択した端点を返す
             sentakumichi = SelectionSearch(uin, sentakus);
         }
 
-        ////sentakumichiのx座標を絶対値化する処理
-        //sentakumichi = MinusDelete(sentakumichi);
+        //Debug.Log(sentakumichi.x + "," + sentakumichi.z);
 
-        ////Ikisakiメソッド：sentakumichiをroadsリストから検索
-        ////続き：繋がっている端点をikisakis（リスト）に格納
-        //ikisakis = Ikisaki(sentakumichi, roads);
+        //sentakumichiのx座標を絶対値化する処理
+        sentakumichi = MinusDelete(sentakumichi);
 
-        ////KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
-        //k = KousatenHanten(ikisakis);
+        //Ikisakiメソッド：sentakumichiをroadsリストから検索
+        //続き：繋がっている端点をikisakis（リスト）に格納
+        ikisakis = Ikisaki(sentakumichi, roads);
 
-        ////中点時の処理
-        ////未Debug
-        //while (k == 0)
-        //{
-        //    int it = 0;
-        //    while (it < ikisakis.Count)
-        //    {
+        //KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
+        k = KousatenHanten(ikisakis);
 
-        //        if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
-        //        {
-        //            sentakumichi = ikisakis[it];
+        //中点時の処理
+        //未Debug
+        while (k == 0)
+        {
+            int it = 0;
+            while (it < ikisakis.Count)
+            {
 
-        //        }
+                if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
+                {
+                    sentakumichi = ikisakis[it];
 
-        //        it++;
-        //    }
-        //    ikisakis = Ikisaki(sentakumichi, roads);
-        //    k = KousatenHanten(ikisakis);
-        //}
+                }
 
-        ////MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
-        //sentakumichi = MinusAdd(sentakumichi);
+                it++;
+            }
+            ikisakis = Ikisaki(sentakumichi, roads);
+            k = KousatenHanten(ikisakis);
+        }
 
-        ////ナビゲーションシステムで移動する処理(Unity)
-        //// NavMeshAgentを取得して
-        //var agent = GetComponent<NavMeshAgent>();
-        ////sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
-        //Vector3 goal;
-        //goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
-        //agent.destination = goal;
+        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+        sentakumichi = MinusAdd(sentakumichi);
+
+        //ナビゲーションシステムで移動する処理(Unity)
+        // NavMeshAgentを取得して
+        var agent = GetComponent<NavMeshAgent>();
+        //sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
+        Vector3 goal;
+        goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
+        agent.destination = goal;
+
+
+        //現在地を取得してgenzaichiに格納（Unity)
+        //IntCastメソッド：transform.positionをint型にキャストする
+        Tanten tugimichi = IntCast(transform.position.x, transform.position.z);
+
+        //genzaichiのx座標を絶対値化する処理
+        tugimichi = MinusDelete(tugimichi);
+
+        //Ikisakiメソッド：genzaichiをroadsリストから検索
+        //続き：繋がっている端点をikisakis（リスト）に格納
+        ikisakis = Ikisaki(tugimichi, roads);
+
+        //選択肢UIを表示
+        //交差点から選択肢それぞれが距離：2の位置に表示
+        int itr = 0;
+        sentakus = new List<Sentaku>();
+        uiv = new List<Vector3>();
+
+        while (itr < ikisakis.Count)
+        {
+            //ikisakis（リスト）をikisakiTに格納
+            ikisakiT = ikisakis[itr];
+
+            //Kakudoメソッド：座標間の角度を出す
+            double kakudo = Kakudo(tugimichi, ikisakiT);
+
+            //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
+            UiPoint ui = UIZahyou(kakudo, tugimichi);
+
+            //UI座標を検索するためのリストに追加
+            sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
+
+
+            //UI判定用のリストにUIの範囲を追加
+            uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
+
+            ////uiに格納されている座標（端点）に選択肢UIを表示
+            //Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
+
+            itr++;
+        }
 
     }
 
@@ -412,7 +414,7 @@ public class Prototype_Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 0.3;
+        double distance = 0.2;
         double x1t = Math.Cos(kakudo) * distance;
         double z1t = Math.Sin(kakudo) * distance;
 
@@ -449,5 +451,43 @@ public class Prototype_Main : MonoBehaviour
     private void Handposition(Vector3 hand_positions)
     {
         hand_position = hand_positions;
+    }
+
+    private bool CollisionDetection(Vector3 fingerposition, List<Vector3> uiv)
+    {
+        int i = 0;
+        while (i < uiv.Count)
+        {
+            //初期値が0問題
+            UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
+            //リストの一つしか読めてない問題
+            UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
+            float p = Kyori(ff, vv);
+            float r = 0.2f;
+            if (r >= p)
+            {
+                uin = new Vector3(uiv[i].x, uiv[i].y, uiv[i].z);
+                return true;
+            }
+            i++;
+        }
+        return false;
+
+    }
+
+    //一つの方向にしか行かない問題
+    private Tanten SelectionSearch(Vector3 uin, List<Sentaku> sentakus)
+    {
+        Tanten selection = new Tanten(0, 0);
+        int i = 0;
+        while (i < sentakus.Count)
+        {
+            if (uin.x == sentakus[i].x1 && uin.z == sentakus[i].z1)
+            {
+                selection = new Tanten(sentakus[i].x2, sentakus[i].z2);
+            }
+            i++;
+        }
+        return selection;
     }
 }
