@@ -83,46 +83,35 @@ public class Prototype_Main : MonoBehaviour
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
-            //uiに格納されている座標（端点）に選択肢UIを表示
-            Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
+            ////uiに格納されている座標（端点）に選択肢UIを表示
+            //Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
 
-
-
-
     }
-    //HandpositionスクリプトからSendMessage
-    //そのスクリプトが格納されているオブジェクトの座標を取得
-    private void Handposition(Vector3 hand_positions)
-    {
-        hand_position = hand_positions;
-    }
+    
 
     private bool CollisionDetection(Vector3 fingerposition, List<Vector3> uiv)
     {
         int i = 0;
-        float p = 0;
-        float r = 0;
-
         while (i < uiv.Count)
         {
             //初期値が0問題
             UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
             //リストの一つしか読めてない問題
             UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
-            p = Kyori(ff, vv);
+            float p = Kyori(ff, vv);
             Debug.Log(p);
-            r = 0.5f;
-            if (r <= p)
+            float r = 0.6f;
+            if (r >= p)
             {
                 uin = new Vector3(uiv[i].x, uiv[i].y, uiv[i].z);
-                break;
+                return true;
             }
             i++;
         }
-        return true;
+        return false;
 
     }
 
@@ -146,7 +135,6 @@ public class Prototype_Main : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         ////現在地を取得してgenzaichiに格納（Unity)
         ////IntCastメソッド：transform.positionをint型にキャストする
         //Tanten genzaichi = IntCast(transform.position.x, transform.position.z);
@@ -161,42 +149,43 @@ public class Prototype_Main : MonoBehaviour
         bool uipointr = CollisionDetection(fingerposition, uiv);
         if (uipointr == true)
         {
+            
             //sentakusリストからUI座標を検索して選択した端点を返す
             sentakumichi = SelectionSearch(uin, sentakus);
         }
 
-        //sentakumichiのx座標を絶対値化する処理
-        sentakumichi = MinusDelete(sentakumichi);
+        ////sentakumichiのx座標を絶対値化する処理
+        //sentakumichi = MinusDelete(sentakumichi);
 
-        //Ikisakiメソッド：sentakumichiをroadsリストから検索
-        //続き：繋がっている端点をikisakis（リスト）に格納
-        ikisakis = Ikisaki(sentakumichi, roads);
+        ////Ikisakiメソッド：sentakumichiをroadsリストから検索
+        ////続き：繋がっている端点をikisakis（リスト）に格納
+        //ikisakis = Ikisaki(sentakumichi, roads);
 
-        //KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
-        k = KousatenHanten(ikisakis);
+        ////KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
+        //k = KousatenHanten(ikisakis);
 
-        //中点時の処理
-        //未Debug
-        while (k == 0)
-        {
-            int it = 0;
-            while (it < ikisakis.Count)
-            {
+        ////中点時の処理
+        ////未Debug
+        //while (k == 0)
+        //{
+        //    int it = 0;
+        //    while (it < ikisakis.Count)
+        //    {
 
-                if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
-                {
-                    sentakumichi = ikisakis[it];
+        //        if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
+        //        {
+        //            sentakumichi = ikisakis[it];
 
-                }
+        //        }
 
-                it++;
-            }
-            ikisakis = Ikisaki(sentakumichi, roads);
-            k = KousatenHanten(ikisakis);
-        }
+        //        it++;
+        //    }
+        //    ikisakis = Ikisaki(sentakumichi, roads);
+        //    k = KousatenHanten(ikisakis);
+        //}
 
-        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
-        sentakumichi = MinusAdd(sentakumichi);
+        ////MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+        //sentakumichi = MinusAdd(sentakumichi);
 
         ////ナビゲーションシステムで移動する処理(Unity)
         //// NavMeshAgentを取得して
@@ -455,5 +444,10 @@ public class Prototype_Main : MonoBehaviour
         return (float)kyori;
     }
 
-
+    //HandpositionスクリプトからSendMessage
+    //そのスクリプトが格納されているオブジェクトの座標を取得
+    private void Handposition(Vector3 hand_positions)
+    {
+        hand_position = hand_positions;
+    }
 }
