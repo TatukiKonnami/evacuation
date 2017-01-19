@@ -4,13 +4,13 @@ using System.Collections;
 public class NaviAgent : MonoBehaviour
 {
     public Transform goal;
-    Vector3 start;
+    //Vector3 start;
 
     // Use this for initialization
     void Start()
     {
-        // 最初の位置を覚えておく
-        start = transform.position;
+        //// 最初の位置を覚えておく
+        //start = transform.position;
         // NavMeshAgentを取得して
         var agent = GetComponent<NavMeshAgent>();
 

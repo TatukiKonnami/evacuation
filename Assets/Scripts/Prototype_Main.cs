@@ -52,7 +52,7 @@ public class Prototype_Main : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        genzaichi = new Tanten(-293, 460);
+        genzaichi = new Tanten(-91, 252);
 
         //genzaichiのx座標を絶対値化する処理
         genzaichi = MinusDelete(genzaichi);
@@ -75,6 +75,7 @@ public class Prototype_Main : MonoBehaviour
 
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
+            //UiPoint uib = UIZahyoub(kakudo, genzaichi);
 
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
@@ -83,16 +84,20 @@ public class Prototype_Main : MonoBehaviour
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
-            ////uiに格納されている座標（端点）に選択肢UIを表示
-            //Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
+            //////uiに格納されている座標（端点）に選択肢UIを表示
+            Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
 
+
+
     }
-    
 
     
+
+
+
 
 
     // Update is called once per frame
@@ -104,7 +109,6 @@ public class Prototype_Main : MonoBehaviour
         fingerposition = hand_position;
 
         //判定処理
-        //UI座標(UiPoint)を返す
         bool uipointr = CollisionDetection(fingerposition, uiv);
         if (uipointr == true)
         {
@@ -112,7 +116,6 @@ public class Prototype_Main : MonoBehaviour
             sentakumichi = SelectionSearch(uin, sentakus);
         }
 
-        //Debug.Log(sentakumichi.x + "," + sentakumichi.z);
 
         //sentakumichiのx座標を絶対値化する処理
         sentakumichi = MinusDelete(sentakumichi);
@@ -146,6 +149,9 @@ public class Prototype_Main : MonoBehaviour
 
         //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
+
+        Debug.Log(sentakumichi.x + "," + sentakumichi.z);
+
 
         //ナビゲーションシステムで移動する処理(Unity)
         // NavMeshAgentを取得して
@@ -406,7 +412,14 @@ public class Prototype_Main : MonoBehaviour
         return kakudo;
     }
 
-    //座標から任意の角度の直線状の座標を返す
+    //HandpositionスクリプトからSendMessage
+    //そのスクリプトが格納されているオブジェクトの座標を取得
+    private void Handposition(Vector3 hand_positions)
+    {
+        hand_position = hand_positions;
+    }
+
+    //座標と角度からdistanceで指定した距離分離れている場所の座標を返す
     private UiPoint UIZahyou(double kakudo, Tanten genzaichi)
     {
         UiPoint ui;
@@ -414,7 +427,7 @@ public class Prototype_Main : MonoBehaviour
         double x1 = genzaichi.x;
         double z1 = genzaichi.z;
 
-        double distance = 0.2;
+        double distance = 0.3;
         double x1t = Math.Cos(kakudo) * distance;
         double z1t = Math.Sin(kakudo) * distance;
 
@@ -428,41 +441,38 @@ public class Prototype_Main : MonoBehaviour
         return ui;
     }
 
-    private float Kyori(UiPoint ff, UiPoint vv)
-    {
-        double kyori;
-        float x1x2 = ff.x - vv.x;
-        float z1z2 = ff.z - vv.z;
+    //private UiPoint UIZahyoub(double kakudo, Tanten genzaichi)
+    //{
+    //    UiPoint ui;
 
-        decimal x1x2de = (decimal)MinusDeletef(x1x2);
-        decimal z1z2de = (decimal)MinusDeletef(z1z2);
+    //    double x1 = genzaichi.x;
+    //    double z1 = genzaichi.z;
 
-        double x1x2do = decimal.ToDouble(x1x2de);
-        double z1z2do = decimal.ToDouble(z1z2de);
+    //    double distance = 4;
+    //    double x1t = Math.Cos(kakudo) * distance;
+    //    double z1t = Math.Sin(kakudo) * distance;
+
+    //    float x1f = (float)x1t + (float)x1;
+    //    float z1f = (float)z1t + (float)z1;
+
+    //    ui = new UiPoint(x1f, z1f);
 
 
 
-        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
-        return (float)kyori;
-    }
+    //    return ui;
+    //}
 
-    //HandpositionスクリプトからSendMessage
-    //そのスクリプトが格納されているオブジェクトの座標を取得
-    private void Handposition(Vector3 hand_positions)
-    {
-        hand_position = hand_positions;
-    }
-
+    //手の座標とUIのリストから距離を計算し、rで指定した値より距離が小さい場合（手がUIに一定距離近づいたら）trueで
+    //uinに、近づいたUIの座標値を格納する
     private bool CollisionDetection(Vector3 fingerposition, List<Vector3> uiv)
     {
         int i = 0;
         while (i < uiv.Count)
         {
-            //初期値が0問題
             UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
-            //リストの一つしか読めてない問題
             UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
             float p = Kyori(ff, vv);
+            Debug.Log(p);
             float r = 0.2f;
             if (r >= p)
             {
@@ -475,7 +485,24 @@ public class Prototype_Main : MonoBehaviour
 
     }
 
-    //一つの方向にしか行かない問題
+    //2つの座標値を与えて距離返す
+    private float Kyori(UiPoint ff, UiPoint vv)
+    {
+        double kyori;
+        float x1x2 = ff.x - vv.x;
+        float z1z2 = ff.z - vv.z;
+
+        decimal x1x2de = (decimal)MinusDeletef(x1x2);
+        decimal z1z2de = (decimal)MinusDeletef(z1z2);
+
+        double x1x2do = decimal.ToDouble(x1x2de);
+        double z1z2do = decimal.ToDouble(z1z2de);
+
+        kyori = Math.Sqrt((x1x2do) * (x1x2do) + (z1z2do) * (z1z2do));
+        return (float)kyori;
+    }
+
+    //uinの座標値をsentakusリストから検索して、それに対応する端点を返す
     private Tanten SelectionSearch(Vector3 uin, List<Sentaku> sentakus)
     {
         Tanten selection = new Tanten(0, 0);
