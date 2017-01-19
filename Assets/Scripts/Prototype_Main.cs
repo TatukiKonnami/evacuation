@@ -9,14 +9,13 @@ public class Prototype_Main : MonoBehaviour
 
     static Vector3 hand_position;
 
+    UnityEngine.Object clones;
+
     //Road型(int x1, int z1, int x2, int z2)のListを宣言
     List<Road> roads = new List<Road>();
 
     //Tanten型(int x, int z)のListを宣言
     List<Tanten> ikisakis = new List<Tanten>();
-
-    ////UiPoint型(float x, float z)のListを宣言
-    //List<UiPoint> uipoints = new List<UiPoint>();
 
     //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
     List<Sentaku> sentakus = new List<Sentaku>();
@@ -75,7 +74,6 @@ public class Prototype_Main : MonoBehaviour
 
             //UIZahyouメソッド：genzaichiからkakudoの角度の直線状の位置を出す
             UiPoint ui = UIZahyou(kakudo, genzaichi);
-            //UiPoint uib = UIZahyoub(kakudo, genzaichi);
 
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
@@ -89,13 +87,13 @@ public class Prototype_Main : MonoBehaviour
 
             itr++;
         }
-
-
-
     }
 
-    
 
+    void FixedUpdate()
+    {
+        
+    }
 
 
 
@@ -161,6 +159,11 @@ public class Prototype_Main : MonoBehaviour
         goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
         agent.destination = goal;
 
+        GameObject[] uid = GameObject.FindGameObjectsWithTag("target");
+        foreach (GameObject obj in uid)
+        {
+            GameObject.Destroy(obj);
+        }
 
         //現在地を取得してgenzaichiに格納（Unity)
         //IntCastメソッド：transform.positionをint型にキャストする
@@ -176,9 +179,9 @@ public class Prototype_Main : MonoBehaviour
         //選択肢UIを表示
         //交差点から選択肢それぞれが距離：2の位置に表示
         int itr = 0;
-        sentakus = new List<Sentaku>();
-        uiv = new List<Vector3>();
-
+        sentakus.Clear();
+        uiv.Clear();
+        
         while (itr < ikisakis.Count)
         {
             //ikisakis（リスト）をikisakiTに格納
@@ -193,16 +196,27 @@ public class Prototype_Main : MonoBehaviour
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
 
-
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
-
-            ////uiに格納されている座標（端点）に選択肢UIを表示
-            //Instantiate(uis, new Vector3(-ui.x, 1.5f, ui.z), Quaternion.identity);
 
             itr++;
         }
 
+        UiSummoning(uiv);
+        
+        
+        ikisakis.Clear();
+    }
+
+    private void UiSummoning(List<Vector3> uiv)
+    {
+        int i = 0;
+        while(i < uiv.Count)
+        {
+            Instantiate(uis, new Vector3(uiv[i].x, 1.5f, uiv[i].z), Quaternion.identity); 
+
+            i++;
+        }
     }
 
 
@@ -440,27 +454,6 @@ public class Prototype_Main : MonoBehaviour
 
         return ui;
     }
-
-    //private UiPoint UIZahyoub(double kakudo, Tanten genzaichi)
-    //{
-    //    UiPoint ui;
-
-    //    double x1 = genzaichi.x;
-    //    double z1 = genzaichi.z;
-
-    //    double distance = 4;
-    //    double x1t = Math.Cos(kakudo) * distance;
-    //    double z1t = Math.Sin(kakudo) * distance;
-
-    //    float x1f = (float)x1t + (float)x1;
-    //    float z1f = (float)z1t + (float)z1;
-
-    //    ui = new UiPoint(x1f, z1f);
-
-
-
-    //    return ui;
-    //}
 
     //手の座標とUIのリストから距離を計算し、rで指定した値より距離が小さい場合（手がUIに一定距離近づいたら）trueで
     //uinに、近づいたUIの座標値を格納する
