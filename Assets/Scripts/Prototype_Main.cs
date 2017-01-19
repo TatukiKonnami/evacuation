@@ -51,7 +51,7 @@ public class Prototype_Main : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        genzaichi = new Tanten(-91, 252);
+        genzaichi = new Tanten(-334, 325);
 
         //genzaichiのx座標を絶対値化する処理
         genzaichi = MinusDelete(genzaichi);
@@ -88,15 +88,6 @@ public class Prototype_Main : MonoBehaviour
             itr++;
         }
     }
-
-
-    void FixedUpdate()
-    {
-        
-    }
-
-
-
 
     // Update is called once per frame
     void Update()
@@ -148,7 +139,7 @@ public class Prototype_Main : MonoBehaviour
         //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
 
-        Debug.Log(sentakumichi.x + "," + sentakumichi.z);
+        //Debug.Log(sentakumichi.x + "," + sentakumichi.z);
 
 
         //ナビゲーションシステムで移動する処理(Unity)
@@ -203,8 +194,7 @@ public class Prototype_Main : MonoBehaviour
         }
 
         UiSummoning(uiv);
-        
-        
+
         ikisakis.Clear();
     }
 
