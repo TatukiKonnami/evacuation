@@ -6,6 +6,9 @@ using System.Collections;
 
 public class Prototype_Mainb : MonoBehaviour
 {
+    Tanten imaichi;
+
+    int itt = 0;
 
     public GameObject uis;
 
@@ -13,13 +16,14 @@ public class Prototype_Mainb : MonoBehaviour
 
     UnityEngine.Object clones;
 
+    bool isRunning = false;
+
+    Tanten tugimichi;
+
     Vector3 fingerposition;
 
     //Road型(int x1, int z1, int x2, int z2)のListを宣言
     List<Road> roads = new List<Road>();
-
-    List<Tanten> tantens = new List<Tanten>();
-
 
     //Tanten型(int x, int z)のListを宣言
     List<Tanten> ikisakis = new List<Tanten>();
@@ -52,27 +56,24 @@ public class Prototype_Mainb : MonoBehaviour
 
     void Awake()
     {
-        //"Road_DataList.txt"と"Tanten_List.txt"を読み込む
-        //"Road_DataList.txtからroadsリスト、Tanten_List.txtからtantensリストを作成する
+        //"Road_DataList.txt"を読み込む
+        //"Road_DataList.txtからroadsリストを作成する
         using (System.IO.StreamReader roadData = new System.IO.StreamReader("Road_DataList.txt", System.Text.Encoding.UTF8))
         {
             roads = CreationRoadList(roadData);
         }
 
-        using (System.IO.StreamReader TantenData = new System.IO.StreamReader("Tanten_List.txt", System.Text.Encoding.UTF8))
-        {
-            tantens = CreationTantenList(TantenData);
-        }
     }
 
     // Use this for initialization
     void Start()
     {
-        genzaichi = new Tanten(-334, 325);
+        genzaichi = new Tanten(-312, 329);
 
         //genzaichiのx座標を絶対値化する処理
         genzaichi = MinusDelete(genzaichi);
-
+        imaichi = genzaichi;
+        
         //Ikisakiメソッド：genzaichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(genzaichi, roads);
@@ -95,7 +96,6 @@ public class Prototype_Mainb : MonoBehaviour
             //UI座標を検索するためのリストに追加
             sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
 
-
             //UI判定用のリストにUIの範囲を追加
             uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
 
@@ -107,44 +107,44 @@ public class Prototype_Mainb : MonoBehaviour
     }
 
 
-    void FixedUpdate()
+    // Update is called once per frame
+    void Update()
     {
         //LeapMotionで選択
         //手の座標取得
         fingerposition = hand_position;
-    }
 
-
-    // Update is called once per frame
-    void Update()
-    {
         //判定処理
         bool uipointr = CollisionDetection(fingerposition, uiv);
-
         if (uipointr == true)
         {
-            //sentakusリストからUI座標を検索して選択した端点を返す
-            sentakumichi = SelectionSearch(uin, sentakus);
-            StartCoroutine("move");
-            //Debug.Log(sentakumichi.x + "," + sentakumichi.z);
+                //UI削除
+                GameObject[] uid = GameObject.FindGameObjectsWithTag("target");
+                foreach (GameObject obj in uid)
+                {
+                    Destroy(obj);
+                }
+
+                //sentakusリストからUI座標を検索して選択した端点を返す
+                sentakumichi = SelectionSearch(uin, sentakus);
+
+                //移動処理
+                StartCoroutine("move");
         }
-
-        totyuumichi = MinusDelete(sentakumichi);
-        bool fixintersection = Michikensaku(tantens, totyuumichi);
-
-        if (fixintersection == true)
-        {
-            StartCoroutine("movee");
-        }
-
-
     }
 
 
     IEnumerator move()
     {
+        if (isRunning)
+            yield break;
+        isRunning = true;
+
         //sentakumichiのx座標を絶対値化する処理
         sentakumichi = MinusDelete(sentakumichi);
+
+
+        
 
         //Ikisakiメソッド：sentakumichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
@@ -152,29 +152,47 @@ public class Prototype_Mainb : MonoBehaviour
 
         //KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
         k = KousatenHanten(ikisakis);
+        int vvv = 0;
+        while(vvv< ikisakis.Count)
+        {
+            Debug.Log(ikisakis[vvv].x + "," + ikisakis[vvv].z+","+vvv);
+            vvv++;
+        }
 
         //中点時の処理
         //未Debug
         while (k == 0)
         {
+            int vc = 0;
             int it = 0;
             while (it < ikisakis.Count)
             {
-
-                if (genzaichi.x != ikisakis[it].x && genzaichi.z != ikisakis[it].z)
+                if (sentakumichi.x != ikisakis[it].x && sentakumichi.z != ikisakis[it].z && (imaichi.x != ikisakis[it].x && imaichi.z != ikisakis[it].z) )
                 {
                     sentakumichi = ikisakis[it];
-
+                    break;
                 }
 
+                Debug.Log(imaichi.x + "," + imaichi.z);
+                Debug.Log( "選択"+sentakumichi.x + "," +sentakumichi.z);
+                
+
                 it++;
+
             }
             ikisakis = Ikisaki(sentakumichi, roads);
             k = KousatenHanten(ikisakis);
+            
+                break;
+            
         }
+
+        imaichi = sentakumichi;
 
         //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
+
+        //Debug.Log(sentakumichi.x +"," + sentakumichi.z);
 
         //ナビゲーションシステムで移動する処理(Unity)
         // NavMeshAgentを取得して
@@ -184,30 +202,19 @@ public class Prototype_Mainb : MonoBehaviour
         goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
         agent.destination = goal;
 
-        GameObject[] uid = GameObject.FindGameObjectsWithTag("target");
-        foreach (GameObject obj in uid)
-        {
-            GameObject.Destroy(obj);
-        }
+        ikisakis.Clear();
 
-        yield return null;
-    }
 
-    IEnumerator movee()
-    {
-        //現在地を取得してgenzaichiに格納（Unity)
-        //IntCastメソッド：transform.positionをint型にキャストする
-        Tanten tugimichi = IntCast(transform.position.x, transform.position.z);
-        Debug.Log(tugimichi.x + "," + tugimichi.z);
 
         //genzaichiのx座標を絶対値化する処理
-        tugimichi = MinusDelete(tugimichi);
+        tugimichi = MinusDelete(sentakumichi);
+
+
 
         //Ikisakiメソッド：genzaichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(tugimichi, roads);
 
-        //選択肢UIを表示
         //交差点から選択肢それぞれが距離：2の位置に表示
         int itr = 0;
         sentakus.Clear();
@@ -237,21 +244,9 @@ public class Prototype_Mainb : MonoBehaviour
 
         ikisakis.Clear();
 
+        isRunning = false;
+
         yield return null;
-    }
-
-
-    private bool Michikensaku(List<Tanten> tantens, Tanten totyuumichi)
-    {
-        int i = 0;
-        while (i < tantens.Count)
-        {
-            if (tantens[i].x == totyuumichi.x && tantens[i].x == totyuumichi.z)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 
@@ -348,7 +343,7 @@ public class Prototype_Mainb : MonoBehaviour
         return textList;
     }
 
-    private List<Tanten> Ikisaki(Tanten genzaichi, List<Road> roads)
+    private List<Tanten> Ikisaki(Tanten sentakumichi, List<Road> roads)
     {
         List<Tanten> IkisakiList = new List<Tanten>();
 
@@ -356,14 +351,17 @@ public class Prototype_Mainb : MonoBehaviour
 
         while (i < roads.Count)
         {
-            if (genzaichi.x == roads[i].x1 && genzaichi.z == roads[i].z1)
+            
+            if (sentakumichi.x == roads[i].x1 && sentakumichi.z == roads[i].z1)
             {
                 IkisakiList.Add(new Tanten(roads[i].x2, roads[i].z2));
+                //Debug.Log(roads[i].x2 + "," + roads[i].z2);
             }
 
-            if (genzaichi.x == roads[i].x2 && genzaichi.z == roads[i].z2)
+            if (sentakumichi.x == roads[i].x2 && sentakumichi.z == roads[i].z2)
             {
                 IkisakiList.Add(new Tanten(roads[i].x1, roads[i].z1));
+                //Debug.Log(roads[i].x1 + "," + roads[i].z1);
             }
 
             i++;
@@ -443,12 +441,12 @@ public class Prototype_Mainb : MonoBehaviour
     }
 
     //座標間の角度を返す
-    private double Kakudo(Tanten genzaichi, Tanten ikisakiT)
+    private double Kakudo(Tanten sentakumichi, Tanten ikisakiT)
     {
         double kakudo = 0.0;
 
-        double x1 = genzaichi.x;
-        double z1 = genzaichi.z;
+        double x1 = sentakumichi.x;
+        double z1 = sentakumichi.z;
         double x2 = ikisakiT.x;
         double z2 = ikisakiT.z;
 
@@ -466,12 +464,12 @@ public class Prototype_Mainb : MonoBehaviour
     }
 
     //座標と角度からdistanceで指定した距離分離れている場所の座標を返す
-    private UiPoint UIZahyou(double kakudo, Tanten genzaichi)
+    private UiPoint UIZahyou(double kakudo, Tanten sentakumichi)
     {
         UiPoint ui;
 
-        double x1 = genzaichi.x;
-        double z1 = genzaichi.z;
+        double x1 = sentakumichi.x;
+        double z1 = sentakumichi.z;
 
         double distance = 0.3;
         double x1t = Math.Cos(kakudo) * distance;
@@ -497,10 +495,11 @@ public class Prototype_Mainb : MonoBehaviour
             UiPoint ff = new UiPoint(fingerposition.x, fingerposition.z);
             UiPoint vv = new UiPoint(uiv[i].x, uiv[i].z);
             float p = Kyori(ff, vv);
-            float r = 0.2f;
-            if (r >= p)
+            float r = 0.1f;
+            if (p <= r)
             {
                 uin = new Vector3(uiv[i].x, uiv[i].y, uiv[i].z);
+                
                 return true;
             }
             i++;
