@@ -20,6 +20,7 @@ public class Prototype_Mainc : MonoBehaviour
     List<Road> roads = new List<Road>();
     //Tanten型(int x, int z)のListを宣言
     List<Tanten> ikisakis = new List<Tanten>();
+    List<Tanten> ikisakiss = new List<Tanten>();
     //Sentaku型(float x1,float z1, int x2,int z2)のListを宣言
     List<Sentaku> sentakus = new List<Sentaku>();
     //UI判定用のリストを作成
@@ -52,6 +53,39 @@ public class Prototype_Mainc : MonoBehaviour
         InitialProcessing();
     }
 
+    void InitialProcessing()
+    {
+        imaichi = position;
+        //positionのx座標を絶対値化する処理
+        position = MinusDelete(position);
+        //Ikisakiメソッド：initialpositionをroadsリストから検索
+        //続き：繋がっている端点をikisakis（リスト）に格納
+        ikisakis = Ikisaki(position, roads);
+        //UI関連の処理
+        UIProcessing();
+        //UiSummoningメソッド：UIを出す
+        UiSummoning(uiv);
+    }
+
+    void UIProcessing()
+    {
+        int itr = 0;
+        while (itr < ikisakis.Count)
+        {
+            //ikisakis（リスト）をikisakiTに格納
+            ikisakiT = ikisakis[itr];
+            //Kakudoメソッド：座標間の角度を出す
+            double kakudo = Kakudo(position, ikisakiT);
+            //UIZahyouメソッド：initialpositionからkakudoの角度の直線状の位置を出す
+            UiPoint ui = UIZahyou(kakudo, position);
+            //UI座標から次の端点を検索するためのリストに追加
+            sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
+            //UI判定用のリストにUIの範囲を追加
+            uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
+            itr++;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -76,48 +110,6 @@ public class Prototype_Mainc : MonoBehaviour
         }
     }
 
-    void InitialProcessing()
-    {
-        imaichi = position;
-        //positionのx座標を絶対値化する処理
-        position = MinusDelete(position);   
-        //Ikisakiメソッド：initialpositionをroadsリストから検索
-        //続き：繋がっている端点をikisakis（リスト）に格納
-        ikisakis = Ikisaki(position, roads);
-        //UI関連の処理
-        UIProcessing();
-        //UiSummoningメソッド：UIを出す
-        UiSummoning(uiv);
-    }
-
-    void UIDestroy()
-    {
-        GameObject[] uid = GameObject.FindGameObjectsWithTag("target");
-        foreach (GameObject obj in uid)
-        {
-            Destroy(obj);
-        }
-    }
-
-    void UIProcessing()
-    {
-        int itr = 0;
-        while (itr < ikisakis.Count)
-        {
-            //ikisakis（リスト）をikisakiTに格納
-            ikisakiT = ikisakis[itr];
-            //Kakudoメソッド：座標間の角度を出す
-            double kakudo = Kakudo(position, ikisakiT);
-            //UIZahyouメソッド：initialpositionからkakudoの角度の直線状の位置を出す
-            UiPoint ui = UIZahyou(kakudo, position);
-            //UI座標から次の端点を検索するためのリストに追加
-            sentakus.Add(new Sentaku(-ui.x, ui.z, ikisakiT.x, ikisakiT.z));
-            //UI判定用のリストにUIの範囲を追加
-            uiv.Add(new Vector3(-ui.x, 1.5f, ui.z));
-            itr++;
-        }
-    }
-
     IEnumerator move()
     {
         if (isRunning)
@@ -137,6 +129,7 @@ public class Prototype_Mainc : MonoBehaviour
         UIProcessing();
         UiSummoning(uiv);
         ikisakis.Clear();
+        ikisakiss.Clear();
         isRunning = false;
         yield return null;
     }
@@ -161,51 +154,70 @@ public class Prototype_Mainc : MonoBehaviour
 
     void Itp()
     {
-        if (k == 1 || k == 2 || k == 0)
+        if (k == 1 || k == 2)
         {
             imaichi = sentakumichi;
             //sentakumichi座標をgoal（行き先）に格納し、navmeshagentに目的地を取得させる
             Navigate();
         }
-    }
-
-    void Mpt()
-    {
-        if (k == 0)
+        else if (k == 0)
         {
-            Navigate();
-            //sentakumichiのx座標を絶対値化する処理
-            sentakumichi = MinusDelete(sentakumichi);
             while (k == 0)
             {
+                Navigate();
                 int it = 0;
                 while (it < ikisakis.Count)
                 {
-                    if (+imaichi.x != ikisakis[it].x && imaichi.z != ikisakis[it].z)
+                    if (imaichi.x != -ikisakis[it].x && imaichi.z != ikisakis[it].z)
                     {
                         sentakumichi = ikisakis[it];
-                        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
-                        sentakumichi = MinusAdd(sentakumichi);
-                        Navigate();
-                        //sentakumichiのx座標を絶対値化する処理
-                        sentakumichi = MinusDelete(sentakumichi);
                     }
                     it++;
                 }
-                ikisakis.Clear();
-                ikisakis = Ikisaki(sentakumichi, roads);
-                k = KousatenHanten(ikisakis);
+                ikisakiss = Ikisaki(sentakumichi, roads);
+                k = KousatenHanten(ikisakiss);
                 if (k == 1 || k == 2)
                 {
                     imaichi = sentakumichi;
                     //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
                     sentakumichi = MinusAdd(sentakumichi);
                     Navigate();
-                    break;
                 }
+                sentakumichi = MinusAdd(sentakumichi);
             }
         }
     }
+
+    //void Mpt()
+    //{
+    //    if (k == 0)
+    //    {
+    //        Navigate();
+    //        int it = 0;
+    //        while (it < ikisakis.Count)
+    //        {
+    //            if (imaichi.x != -ikisakis[it].x && imaichi.z != ikisakis[it].z)
+    //            {
+    //                sentakumichi = ikisakis[it];
+    //                //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+    //                sentakumichi = MinusAdd(sentakumichi);
+    //                Navigate();
+    //                //sentakumichiのx座標を絶対値化する処理
+    //                sentakumichi = MinusDelete(sentakumichi);
+    //            }
+    //            it++;
+    //        }
+    //        ikisakiss = Ikisaki(sentakumichi, roads);
+    //        k = KousatenHanten(ikisakiss);
+    //        if (k == 1 || k == 2)
+    //        {
+    //            imaichi = sentakumichi;
+    //            //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+    //            sentakumichi = MinusAdd(sentakumichi);
+    //            Navigate();
+    //        }
+    //    }
+    //}
 
     void Navigate()
     {
@@ -214,6 +226,15 @@ public class Prototype_Mainc : MonoBehaviour
         goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
         Debug.Log(sentakumichi.x + "," + sentakumichi.z);
         agent.destination = goal;
+    }
+
+    void UIDestroy()
+    {
+        GameObject[] uid = GameObject.FindGameObjectsWithTag("target");
+        foreach (GameObject obj in uid)
+        {
+            Destroy(obj);
+        }
     }
 
     // 以下Method　
