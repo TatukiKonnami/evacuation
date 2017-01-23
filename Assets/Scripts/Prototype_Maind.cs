@@ -4,7 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Prototype_Mainc : MonoBehaviour
+public class Prototype_Maind : MonoBehaviour
 {
     public Tanten position;
     private float intervalTime = 0.0f;
@@ -35,7 +35,6 @@ public class Prototype_Mainc : MonoBehaviour
     public bool fixintersection;
     public Tanten totyuumichi;
 
-
     void Awake()
     {
         //"Road_DataList.txtからroadsリストを作成する
@@ -49,7 +48,7 @@ public class Prototype_Mainc : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        position = new Tanten(-308, 67);
+        position = new Tanten(-312, 329);
         InitialProcessing();
     }
 
@@ -122,9 +121,10 @@ public class Prototype_Mainc : MonoBehaviour
         position = MinusDelete(sentakumichi);
         //Ikisakiメソッド：positionをroadsリストから検索、繋がっている端点をikisakis（リスト）に格納     
         ikisakis = Ikisaki(position, roads);
-        //UI関連の処理
+        //交差点から選択肢それぞれが距離：2の位置に表示
         sentakus.Clear();
         uiv.Clear();
+        //UI関連の処理
         UIProcessing();
         UiSummoning(uiv);
         ikisakis.Clear();
@@ -144,45 +144,45 @@ public class Prototype_Mainc : MonoBehaviour
         k = KousatenHanten(ikisakis);
         //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
         sentakumichi = MinusAdd(sentakumichi);
-        //交差点,中点,行き止まり処理
+        //交差点時の処理
         Itp();
-
     }
 
     void Itp()
     {
-        if (k == 1 || k == 2 || k == 0)
+        if (k == 0)
+        {
+            while (k == 0)
+            {
+                Navigate();
+                int it = 0;
+                while (it < ikisakis.Count)
+                {
+                    if (imaichi.x != -ikisakis[it].x && imaichi.z != ikisakis[it].z)
+                    {
+                        sentakumichi = ikisakis[it];
+                    }
+                    it++;
+                }
+                ikisakiss = Ikisaki(sentakumichi, roads);
+                k = KousatenHanten(ikisakiss);
+                if (k == 1 || k == 2)
+                {
+                    imaichi = sentakumichi;
+                    //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+                    sentakumichi = MinusAdd(sentakumichi);
+                    Navigate();
+                }
+                sentakumichi = MinusAdd(sentakumichi);
+            }
+
+        }
+        else if (k == 1 || k == 2)
         {
             imaichi = sentakumichi;
             //sentakumichi座標をgoal（行き先）に格納し、navmeshagentに目的地を取得させる
             Navigate();
         }
-        //else if (k == 0)
-        //{
-        //    while (k == 0)
-        //    {
-        //        Navigate();
-        //        int it = 0;
-        //        while (it < ikisakis.Count)
-        //        {
-        //            if (imaichi.x != -ikisakis[it].x && imaichi.z != ikisakis[it].z)
-        //            {
-        //                sentakumichi = ikisakis[it];
-        //            }
-        //            it++;
-        //        }
-        //        ikisakiss = Ikisaki(sentakumichi, roads);
-        //        k = KousatenHanten(ikisakiss);
-        //        if (k == 1 || k == 2)
-        //        {
-        //            imaichi = sentakumichi;
-        //            //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
-        //            sentakumichi = MinusAdd(sentakumichi);
-        //            Navigate();
-        //        }
-        //        sentakumichi = MinusAdd(sentakumichi);
-        //    }
-        //}
     }
 
     void Navigate()
