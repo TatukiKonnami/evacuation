@@ -48,7 +48,7 @@ public class Prototype_Mainc : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        position = new Tanten(-312, 329);
+        position = new Tanten(-308, 67);
         InitialProcessing();
     }
 
@@ -69,20 +69,18 @@ public class Prototype_Mainc : MonoBehaviour
                 UIDestroy();
                 //sentakusリストからUI座標を検索して選択した端点を返す
                 sentakumichi = SelectionSearch(uin, sentakus);
-                Debug.Log(uin.x + "," + uin.x);
                 //移動処理
                 StartCoroutine("move");
             }
             intervalTime = 0.0f;
         }
-
     }
 
     void InitialProcessing()
     {
-        //positionのx座標を絶対値化する処理
-        position = MinusDelete(position);
         imaichi = position;
+        //positionのx座標を絶対値化する処理
+        position = MinusDelete(position);   
         //Ikisakiメソッド：initialpositionをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(position, roads);
@@ -125,25 +123,12 @@ public class Prototype_Mainc : MonoBehaviour
         if (isRunning)
             yield break;
         isRunning = true;
-        //sentakumichiのx座標を絶対値化する処理
-        sentakumichi = MinusDelete(sentakumichi);
-
         //交差点を探す処理
         IntersectionSearch();
-
-        ////探した交差点の座標になるまで中点をNavigate()に渡し続ける処理
-        ////もし交差点の場合UIを表示する
-        //NaviMove();
-
-        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
-        sentakumichi = MinusAdd(sentakumichi);
-        //sentakumichi座標をgoal（行き先）に格納し、NavMeshAgentに目的地を取得させる
-        Navigate();
         ikisakis.Clear();
         //positionのx座標を絶対値化する処理
         position = MinusDelete(sentakumichi);
-        //Ikisakiメソッド：positionをroadsリストから検索
-        //続き：繋がっている端点をikisakis（リスト）に格納
+        //Ikisakiメソッド：positionをroadsリストから検索、繋がっている端点をikisakis（リスト）に格納     
         ikisakis = Ikisaki(position, roads);
         //交差点から選択肢それぞれが距離：2の位置に表示
         sentakus.Clear();
@@ -158,42 +143,68 @@ public class Prototype_Mainc : MonoBehaviour
 
     void IntersectionSearch()
     {
+        //sentakumichiのx座標を絶対値化する処理
+        sentakumichi = MinusDelete(sentakumichi);
         //Ikisakiメソッド：sentakumichiをroadsリストから検索
         //続き：繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(sentakumichi, roads);
         //KousatenHantenメソッドから交差点or中点or行き止まりorエラーを判定
         k = KousatenHanten(ikisakis);
-        //中点時の処理
-        Mpt();
+        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+        sentakumichi = MinusAdd(sentakumichi);
+        //交差点時の処理
+        Itp();
+        ////中点時の処理
+        //Mpt();
+
     }
 
-    //void NaviMove()
-    //{
-
-
-    //}
+    void Itp()
+    {
+        if (k == 1 || k == 2 || k == 0)
+        {
+            imaichi = sentakumichi;
+            //sentakumichi座標をgoal（行き先）に格納し、navmeshagentに目的地を取得させる
+            Navigate();
+        }
+    }
 
     void Mpt()
     {
-        while (k == 0)
+        if (k == 0)
         {
-            int it = 0;
-            while (it < ikisakis.Count)
+            Navigate();
+            //sentakumichiのx座標を絶対値化する処理
+            sentakumichi = MinusDelete(sentakumichi);
+            while (k == 0)
             {
-                if (imaichi.x != ikisakis[it].x && imaichi.z != ikisakis[it].z)
+                int it = 0;
+                while (it < ikisakis.Count)
                 {
-                    sentakumichi = ikisakis[it];
+                    if (+imaichi.x != ikisakis[it].x && imaichi.z != ikisakis[it].z)
+                    {
+                        sentakumichi = ikisakis[it];
+                        //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+                        sentakumichi = MinusAdd(sentakumichi);
+                        Navigate();
+                        //sentakumichiのx座標を絶対値化する処理
+                        sentakumichi = MinusDelete(sentakumichi);
+                    }
+                    it++;
                 }
-                it++;
-            }
-            ikisakis = Ikisaki(sentakumichi, roads);
-            k = KousatenHanten(ikisakis);
-            if (k == 2 || k == 1)
-            {
-                break;
+                ikisakis.Clear();
+                ikisakis = Ikisaki(sentakumichi, roads);
+                k = KousatenHanten(ikisakis);
+                if (k == 1 || k == 2)
+                {
+                    imaichi = sentakumichi;
+                    //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
+                    sentakumichi = MinusAdd(sentakumichi);
+                    Navigate();
+                    break;
+                }
             }
         }
-        imaichi = sentakumichi;
     }
 
     void Navigate()
@@ -201,6 +212,7 @@ public class Prototype_Mainc : MonoBehaviour
         var agent = GetComponent<NavMeshAgent>();
         Vector3 goal;
         goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
+        Debug.Log(sentakumichi.x + "," + sentakumichi.z);
         agent.destination = goal;
     }
 
