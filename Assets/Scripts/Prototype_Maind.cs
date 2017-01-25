@@ -48,7 +48,7 @@ public class Prototype_Maind : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        position = new Tanten(-312, 329);
+        position = new Tanten(-262, 388);
         InitialProcessing();
     }
 
@@ -190,7 +190,7 @@ public class Prototype_Maind : MonoBehaviour
         var agent = GetComponent<NavMeshAgent>();
         Vector3 goal;
         goal = new Vector3(sentakumichi.x, 1.5f, sentakumichi.z);
-        Debug.Log(sentakumichi.x + "," + sentakumichi.z);
+        //Debug.Log(sentakumichi.x + "," + sentakumichi.z);
         agent.destination = goal;
     }
 
