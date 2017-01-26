@@ -88,15 +88,14 @@ public class Prototype_Maind : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //?秒毎に更新
-        intervalTime += Time.deltaTime;
-        if (intervalTime >= 0.1f)
+        //手の座標取得
+        fingerposition = hand_position;
+        //判定処理
+        bool uipointr = CollisionDetection(fingerposition, uiv);
+        if (uipointr == true)
         {
-            //手の座標取得
-            fingerposition = hand_position;
-            //判定処理
-            bool uipointr = CollisionDetection(fingerposition, uiv);
-            if (uipointr == true)
+            intervalTime += Time.deltaTime;
+            if (intervalTime >= 3f)
             {
                 //UI削除
                 UIDestroy();
@@ -104,7 +103,11 @@ public class Prototype_Maind : MonoBehaviour
                 sentakumichi = SelectionSearch(uin, sentakus);
                 //移動処理
                 StartCoroutine("move");
+                intervalTime = 0.0f;
             }
+        }
+        if (uipointr == false)
+        {
             intervalTime = 0.0f;
         }
     }
