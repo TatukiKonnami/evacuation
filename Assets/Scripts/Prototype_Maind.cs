@@ -95,7 +95,7 @@ public class Prototype_Maind : MonoBehaviour
         if (uipointr == true)
         {
             intervalTime += Time.deltaTime;
-            if (intervalTime >= 3f)
+            if (intervalTime >= 2f)
             {
                 //UI削除
                 UIDestroy();
@@ -106,10 +106,10 @@ public class Prototype_Maind : MonoBehaviour
                 intervalTime = 0.0f;
             }
         }
-        if (uipointr == false)
-        {
-            intervalTime = 0.0f;
-        }
+        //if (uipointr == false)
+        //{
+        //    intervalTime = 0.0f;
+        //}
     }
 
     IEnumerator move()
@@ -175,6 +175,7 @@ public class Prototype_Maind : MonoBehaviour
                     //MinusAddメソッド：sentakumichiのx座標にマイナスを付ける処理
                     sentakumichi = MinusAdd(sentakumichi);
                     Navigate();
+                    break;
                 }
                 sentakumichi = MinusAdd(sentakumichi);
             }
