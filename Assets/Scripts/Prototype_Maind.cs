@@ -48,7 +48,7 @@ public class Prototype_Maind : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        position = new Tanten(-262, 388);
+        position = new Tanten(-502, 282);
         InitialProcessing();
     }
 
