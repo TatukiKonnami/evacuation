@@ -17,6 +17,7 @@ public class Prototype_Maind : MonoBehaviour
     Tanten imaichi;
     Vector3 fingerposition;
     //Road型(int x1, int z1, int x2, int z2)のListを宣言
+    //
     List<Road> roads = new List<Road>();
     //Tanten型(int x, int z)のListを宣言
     List<Tanten> ikisakis = new List<Tanten>();
@@ -122,7 +123,7 @@ public class Prototype_Maind : MonoBehaviour
         ikisakis.Clear();
         //positionのx座標を絶対値化する処理
         position = MinusDelete(sentakumichi);
-        //Ikisakiメソッド：positionをroadsリストから検索、繋がっている端点をikisakis（リスト）に格納     
+        //Ikisakiメソッド：positionをroadsリストから検索、繋がっている端点をikisakis（リスト）に格納
         ikisakis = Ikisaki(position, roads);
         //交差点から選択肢それぞれが距離：2の位置に表示
         sentakus.Clear();
